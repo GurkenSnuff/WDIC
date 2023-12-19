@@ -694,6 +694,7 @@ def valid_attack(unit, start, dest, dest_unit):
 def attack_unit(unit, start, dest, dest_unit):
     global grid, game_over
     dest_unit.current_hp -= unit.damage
+    dest_unit.ShowLifeBar()
     if unit.game_id == 'Soldier':
         attack_sound = pg.mixer.Sound('art/rifle.wav')
     elif unit.game_id == 'Spy':
@@ -1609,7 +1610,7 @@ def game():
                             evaluate_build_space(selected_unit.xy, build_cell, selected_unit, build_request, \
                                                  dimension_lib.get(build_request))
                             build_scroll = 0
-                            selected_unit.isWorking = True
+                            #selected_unit.isWorking = build_request
                             selected_unit.build_menu = False
                             build_request = None
                         elif tp_request is not None:
@@ -1679,7 +1680,8 @@ def game():
                                     test_cycle = selected_unit
                                     selected_unit = next(cycle)
                                     oldUnit = None
-                                    while selected_unit.isWorking == True and selected_unit != oldUnit:
+                                    
+                                    while (selected_unit.building_timer != 0 and selected_unit != oldUnit) or (selected_unit.activities == {1, 1, 1}and selected_unit != oldUnit):
                                         oldUnit = selected_unit
                                         selected_unit = next(cycle)
 

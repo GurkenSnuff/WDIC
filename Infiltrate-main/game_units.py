@@ -35,19 +35,39 @@ class GridObject:
             return True
         else:
             return False
+        
+    def ShowLifeBar(self):
+        print("hi")
 
     def refresh(self):
         if not self.static:
             if self.game_id == 'Sniper' and self.special_used:
                 self.range /= 2
-            if self.game_id == 'Engineer' and self.building_timer > 1:
-                self.building_timer -= 1
+
+            if self.game_id == 'Engineer':
+                if self.building_timer > 0:
+                    self.building_timer -= 1
+                
+                if self.building_timer == 0:
+                    self.steps_remaining = self.speed
+                    if not self.game_id == 'Spy':
+                        self.special_condition = True
+                        self.special_used = False
+                    self.has_attacked = False
+                    if self.game_id == 'Spy' and self.activities[2] == 1:
+                        self.activities = [0, 0, 1]
+                    else:
+                        self.activities = [0, 0, 0]
+                    if self.game_id == 'Soldier':
+                        self.turn_attacks = 0
+                    if self.game_id == 'Engineer':
+                        self.activities[1] = 1
             else:
                 self.steps_remaining = self.speed
                 if not self.game_id == 'Spy':
                     self.special_condition = True
                     self.special_used = False
-                self.has_attacked = False
+                    self.has_attacked = False
                 if self.game_id == 'Spy' and self.activities[2] == 1:
                     self.activities = [0, 0, 1]
                 else:
@@ -56,6 +76,11 @@ class GridObject:
                     self.turn_attacks = 0
                 if self.game_id == 'Engineer':
                     self.activities[1] = 1
+            
+            
+                
+
+                
 
     def generic_description(self):
         if self.game_id == 'Secret Lab':
@@ -87,7 +112,7 @@ class Unit(GridObject):
         self.damage = 20
         self.speed = 5
         self.range = 6
-        self.isWorking = False
+        
         if game_id == 'Soldier':
             self.special_move = 'Burst Fire'
             self.turn_attacks = 0
@@ -212,6 +237,7 @@ class Building(GridObject):
         self.queue = None
         self.queue_timer = self.produce_time
         super().__init__(xy, team, game_id, static, w, h)
+        #return self.construct_timer
 
     def production(self):
         self.queue_timer -= 1
