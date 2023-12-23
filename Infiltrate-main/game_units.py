@@ -3,7 +3,7 @@ import pygame as pg, load_art as art
 
 class GridObject:
     # xy always a tuple
-    def __init__(self, xy, team, game_id, static, w, h):
+    def __init__(self, xy, team, game_id, static, w, h, grid):
         if team is None:
             self.image = art.image_lib.get(game_id)
         else:
@@ -23,6 +23,7 @@ class GridObject:
         self.static = static
         self.w = w
         self.h = h
+        self.grid = grid
 
     def scale_image(self, size):
         if self.multi_cell:
@@ -36,10 +37,14 @@ class GridObject:
         else:
             return False
         
-    def ShowLifeBar(self):
-        print("hi")
+    def ShowLifeBar(self, screen):
+        
+        if self.current_hp < self.hp:
+            hpPercent = self.hp/self.current_hp
+            pos = self.grid.find_grid_coords(self.xy[0],self.xy[1], self.grid.grid_w)
+            pg.draw.rect(screen, art.GREY,(pos,pos, 50, 10))
 
-    def refresh(self):
+    def refresh(self, screen):
         if not self.static:
             if self.game_id == 'Sniper' and self.special_used:
                 self.range /= 2
@@ -77,7 +82,6 @@ class GridObject:
                 if self.game_id == 'Engineer':
                     self.activities[1] = 1
             
-            
                 
 
                 
@@ -98,7 +102,7 @@ class GridObject:
 
 
 class Unit(GridObject):
-    def __init__(self, xy, team, game_id):
+    def __init__(self, xy, team, game_id, grid):
         static = False
         # move, attack, special
         self.activities = [0, 0, 0]
@@ -112,6 +116,7 @@ class Unit(GridObject):
         self.damage = 20
         self.speed = 5
         self.range = 6
+        self.grid = grid
         
         if game_id == 'Soldier':
             self.special_move = 'Burst Fire'
@@ -147,7 +152,7 @@ class Unit(GridObject):
         self.steps_remaining = self.speed
         self.flipped = False
         self.carrying = False
-        super().__init__(xy, team, game_id, static, w=1, h=1)
+        super().__init__(xy, team, game_id, static, 1, 1, grid)
 
     def special_move_description(self):
         if self.game_id == 'Soldier':
@@ -180,13 +185,16 @@ class Unit(GridObject):
 
 
 class Building(GridObject):
-    def __init__(self, xy, team, game_id, con_type=None):
+    def __init__(self, xy, team, game_id, grid, con_type=None):
         static = True
         self.produce = None
         self.produce_time = 2
         self.range = None
         self.hp = 200
         self.con_type = con_type
+        self.grid = grid
+    
+
         if game_id == 'Secret Lab':
             w, h = 2, 2
         if game_id == 'Construction':
@@ -236,7 +244,7 @@ class Building(GridObject):
         self.current_hp = self.hp
         self.queue = None
         self.queue_timer = self.produce_time
-        super().__init__(xy, team, game_id, static, w, h)
+        super().__init__(xy, team, game_id, static, w, h, grid)
         #return self.construct_timer
 
     def production(self):
@@ -281,13 +289,13 @@ class Building(GridObject):
 
 
 class PowerUp(GridObject):
-    def __init__(self, xy, game_id):
+    def __init__(self, xy, game_id, grid = None):
         static = True
         team = None
         if game_id == 'Wild Berries':
             self.heal = 15
         self.range = None
-        super().__init__(xy, team, game_id, static, w=1, h=1)
+        super().__init__(xy, team, game_id, static, w=1, h=1, grid=grid)
 
     def use_power(self, unit):
         if self.game_id == 'Wild Berries' and unit.current_hp < unit.hp:
@@ -303,11 +311,11 @@ class PowerUp(GridObject):
 
 
 class Terrain(GridObject):
-    def __init__(self, xy, game_id):
+    def __init__(self, xy, game_id, grid=None):
         static = True
         team = None
         if game_id == 'Collection Post':
             self.range = 1
         else:
             self.range = None
-        super().__init__(xy, team, game_id, static, w=1, h=1)
+        super().__init__(xy, team, game_id, static, w=1, h=1, grid=grid)

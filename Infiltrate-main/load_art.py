@@ -94,6 +94,7 @@ def draw_health_bar(window, w, h, current, total):
         pg.draw.line(window, RED, (int(w / 6) - 1, 32), (int(w / 6) + int(bar_length) + 1, 32), 12)
 
 
+
 # font types
 if __name__ == '__main__':
     for font in pg.font.get_fonts():
