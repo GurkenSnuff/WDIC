@@ -1,4 +1,5 @@
 import pygame as pg, load_art as art
+import pygame
 
 
 class GridObject:
@@ -37,12 +38,24 @@ class GridObject:
         else:
             return False
         
-    def ShowLifeBar(self, screen):
+    def ShowLifeBar(self, screen, w, grid_width, grid_height, grid_scroll, adj_y, adj_x):
         
         if self.current_hp < self.hp:
+            c = round(w / grid_width)
             hpPercent = self.hp/self.current_hp
-            pos = self.grid.find_grid_coords(self.xy[0],self.xy[1], self.grid.grid_w)
-            pg.draw.rect(screen, art.GREY,(pos,pos, 50, 10))
+            pos = self.grid.grid_to_pixel_coords(self.xy[0],self.xy[1], w, grid_width, grid_height, grid_scroll, adj_y, adj_x)
+            if pos != None:
+                if not isinstance(self.xy[0], tuple):
+                    pygame.draw.rect(screen, art.MAROON,(pos[0] + 10,pos[1] - 35, 60, 10))
+                    pygame.draw.rect(screen, art.RED,(pos[0] + 10,pos[1] - 35, 60/hpPercent, 10))
+                else:
+                    if self.game_id == "HQ":
+                        pygame.draw.rect(screen, art.MAROON,(pos[0] + 10, pos[1] - 35 - c, 60 * (self.w + 1) - 10, 10))
+                        pygame.draw.rect(screen, art.RED,(pos[0] + 10, pos[1] - 35 - c, 60/hpPercent * (self.w + 1) - 10, 10))
+                    else:
+                        pygame.draw.rect(screen, art.MAROON,(pos[0] + 10, pos[1] - 35 - c, 60 * self.w + 10, 10))
+                        pygame.draw.rect(screen, art.RED,(pos[0] + 10, pos[1] - 35 - c, 60/hpPercent * self.w + 10, 10))
+            
 
     def refresh(self, screen):
         if not self.static:

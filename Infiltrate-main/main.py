@@ -47,7 +47,7 @@ doc_limit = 20
 # coords adjacent to collection posts
 collection_coords = [(0, 1), (1, 0), (2, 1), (1, 2), (10, 0), (9, 1), (10, 2), (11, 1), (1, 33), (0, 34), (1, 35), \
                      (2, 34), (10, 35), (9, 34), (10, 33), (11, 34)]
-gridClass = grid_util(grid_width, grid_scroll, adj_x, adj_y, 0)
+gridClass = grid_util()
 
 game_over = False
 
@@ -508,7 +508,7 @@ def draw_graphics(grid_space, w):
     # cor = correct: slight grid adjustment
     cor = 2
     visible = []
-    for y, row in enumerate(grid[gridClass.grid_scroll:gridClass.grid_scroll + 12]):
+    for y, row in enumerate(grid[grid_scroll:grid_scroll + 12]):
         for x, item in enumerate(row):
             if item is not None and item not in visible:
                 visible.append(item)
@@ -516,20 +516,20 @@ def draw_graphics(grid_space, w):
     for item in visible:
         if item.multi_cell:
             x, y = item.xy[0]
-            y -= gridClass.grid_scroll
+            y -= grid_scroll
         else:
             x = item.xy[0]
-            y = item.xy[1] - gridClass.grid_scroll
+            y = item.xy[1] - grid_scroll
         draw_x, draw_y = c * x, c * y + cor
         grid_space.blit(item.image, (draw_x, draw_y))
-    if type(selected_cell) == tuple and gridClass.grid_scroll + 12 >= selected_cell[1] >= gridClass.grid_scroll:
+    if type(selected_cell) == tuple and grid_scroll + 12 >= selected_cell[1] >= grid_scroll:
         if selected_unit is not None and selected_unit.multi_cell:
             x, y = selected_unit.xy[0]
-            y -= gridClass.grid_scroll
+            y -= grid_scroll
             draw_x, draw_y = c * x, c * y
             draw_w, draw_h = c * selected_unit.w + 1, c * selected_unit.h + 1
         else:
-            x, y = selected_cell[0], selected_cell[1] - gridClass.grid_scroll
+            x, y = selected_cell[0], selected_cell[1] - grid_scroll
             draw_x, draw_y = c * x, c * y
             draw_w, draw_h = c + 1, c + 1
         if click_graphic == 1 and selected_unit.steps_remaining > 0:
@@ -537,8 +537,8 @@ def draw_graphics(grid_space, w):
                 find_move_squares()
                 graphic_squares.append('Search complete')
             for square in graphic_squares[:-1]:
-                if gridClass.grid_scroll + 12 >= square[1] >= gridClass.grid_scroll:
-                    x, y = square[0], square[1] - gridClass.grid_scroll
+                if grid_scroll + 12 >= square[1] >= grid_scroll:
+                    x, y = square[0], square[1] - grid_scroll
                     draw_x, draw_y = c * x, c * y
                     draw_w, draw_h = c + 1, c + 1
                     pg.draw.rect(grid_space, art.GREEN, (draw_x, draw_y, draw_w, draw_h), 3)
@@ -551,11 +551,11 @@ def draw_graphics(grid_space, w):
                 for target in graphic_squares[:-1]:
                     if target.multi_cell:
                         x, y = target.xy[0]
-                        y -= gridClass.grid_scroll
+                        y -= grid_scroll
                         draw_x, draw_y = c * x, c * y
                         draw_w, draw_h = c * target.w + 1, c * target.h + 1
                     else:
-                        x, y = target.xy[0], target.xy[1] - gridClass.grid_scroll
+                        x, y = target.xy[0], target.xy[1] - grid_scroll
                         draw_x, draw_y = c * x, c * y
                         draw_w, draw_h = c + 1, c + 1
                     pg.draw.rect(grid_space, art.YELLOW, (draw_x, draw_y, draw_w, draw_h), 3)
@@ -563,8 +563,8 @@ def draw_graphics(grid_space, w):
                 if len(graphic_squares) == 0:
                     find_range()
                 for square in graphic_squares:
-                    if gridClass.grid_scroll + 12 >= square[1] >= gridClass.grid_scroll:
-                        x, y = square[0], square[1] - gridClass.grid_scroll
+                    if grid_scroll + 12 >= square[1] >= grid_scroll:
+                        x, y = square[0], square[1] - grid_scroll
                         draw_x, draw_y = c * x, c * y
                         draw_w, draw_h = c + 1, c + 1
                         pg.draw.rect(grid_space, art.YELLOW, (draw_x, draw_y, draw_w, draw_h), 3)
@@ -575,7 +575,7 @@ def game_reset():
     grid = [[None for x in range(grid_width)] for x in range(grid_height)]
     item_list.clear()
     selected_cell = None
-    gridClass.grid_scroll = 0
+    grid_scroll = 0
     turn = 0
     round_counter = 1
     secret_docs['Blue'], secret_docs['Red'] = 0, 0
@@ -945,7 +945,7 @@ def next_turn():
         tone.play()
     turn = abs(turn - 1)
     if turn:
-        gridClass.grid_scroll = grid_height - grid_width
+        grid_scroll = grid_height - grid_width
     else:
         for item in item_list:
             item.refresh(screen)
@@ -963,7 +963,7 @@ def next_turn():
                     item_list.remove(item)
                 elif item.range is not None and item.game_id != 'Teleporter':
                     detect_proximity(item.range, item)
-        gridClass.grid_scroll = 0
+        grid_scroll = 0
         round_counter += 1
         power_spawn()
     selected_cell = None
@@ -1025,7 +1025,7 @@ def draw_tutorial_graphics(progress, grid_w, grid):
         screen.blit(draw_text, (grid_w + 160, 500))
         draw_text = art.render_text('Left click the engineer to begin.', 'hpsimplified', 48, art.BLACK)
         screen.blit(draw_text, (grid_w + 160, 560))
-        grid.blit(RedArrow, (c * 5, c * (4 - gridClass.grid_scroll)))
+        grid.blit(RedArrow, (c * 5, c * (4 - grid_scroll)))
     if progress == 1:
         draw_text = art.render_text('Click the move button to view movable squares.', 'hpsimplified', 48, art.BLACK)
         screen.blit(draw_text, (grid_w + 160, 500))
@@ -1098,7 +1098,7 @@ def draw_tutorial_graphics(progress, grid_w, grid):
         screen.blit(draw_text, (grid_w + 160, 500))
         draw_text = art.render_text('damage.', 'hpsimplified', 48, art.BLACK)
         screen.blit(draw_text, (grid_w + 160, 560))
-        grid.blit(RedArrow, (c * 3, c * (26 - gridClass.grid_scroll)))
+        grid.blit(RedArrow, (c * 3, c * (26 - grid_scroll)))
     if progress == 12 or progress == 13:
         draw_text = art.render_text("Now reselect the soldier and fire again.", 'hpsimplified', 48, art.BLACK)
         screen.blit(draw_text, (grid_w + 160, 500))
@@ -1113,14 +1113,14 @@ def draw_tutorial_graphics(progress, grid_w, grid):
         screen.blit(draw_text, (grid_w + 160, 560))
         draw_text = art.render_text('Next, click the red scout.', 'hpsimplified', 48, art.BLACK)
         screen.blit(draw_text, (grid_w + 160, 620))
-        grid.blit(RedArrow, (c * 8, c * (27 - gridClass.grid_scroll)))
+        grid.blit(RedArrow, (c * 8, c * (27 - grid_scroll)))
     if progress == 15:
         draw_text = art.render_text("The scout is wounded. Luckily, we can move to", 'hpsimplified', 48, art.BLACK)
         screen.blit(draw_text, (grid_w + 160, 500))
         draw_text = art.render_text('the "wild berries" powerup to recover health.', 'hpsimplified', 48, art.BLACK)
         screen.blit(draw_text, (grid_w + 160, 560))
-        grid.blit(RedArrow, (c * 8, c * (19 - gridClass.grid_scroll)))
-        if gridClass.grid_scroll > 20:
+        grid.blit(RedArrow, (c * 8, c * (19 - grid_scroll)))
+        if grid_scroll > 20:
             draw_text = art.render_text('Scroll up to see the berries.', 'hpsimplified', 48, art.BLACK)
             screen.blit(draw_text, (grid_w + 160, 620))
     if progress == 16:
@@ -1145,7 +1145,7 @@ def draw_tutorial_graphics(progress, grid_w, grid):
         screen.blit(draw_text, (grid_w + 160, 500))
         draw_text = art.render_text('Click on the blue HQ to continue.', 'hpsimplified', 48, art.BLACK)
         screen.blit(draw_text, (grid_w + 160, 560))
-        grid.blit(RedArrow, (c * 6, c * (1 - gridClass.grid_scroll)))
+        grid.blit(RedArrow, (c * 6, c * (1 - grid_scroll)))
     if progress == 20:
         draw_text = art.render_text("Some buildings produce units.", 'hpsimplified', 48, art.BLACK)
         screen.blit(draw_text, (grid_w + 160, 500))
@@ -1170,8 +1170,8 @@ def draw_tutorial_graphics(progress, grid_w, grid):
         screen.blit(draw_text, (grid_w + 160, 560))
         draw_text = art.render_text("Secret Documents. Click one to continue.", 'hpsimplified', 48, art.BLACK)
         screen.blit(draw_text, (grid_w + 160, 620))
-        grid.blit(RedArrow, (c * 2, c * (14 - gridClass.grid_scroll)))
-        grid.blit(RedArrow, (c * 9, c * (20 - gridClass.grid_scroll)))
+        grid.blit(RedArrow, (c * 2, c * (14 - grid_scroll)))
+        grid.blit(RedArrow, (c * 9, c * (20 - grid_scroll)))
     if progress == 23:
         draw_text = art.render_text("Secret Documents spawn here every 5 rounds.", 'hpsimplified', 48, art.BLACK)
         screen.blit(draw_text, (grid_w + 160, 500))
@@ -1196,8 +1196,8 @@ def draw_tutorial_graphics(progress, grid_w, grid):
         screen.blit(draw_text, (grid_w + 160, 680))
         draw_text = art.render_text("Good luck!", 'hpsimplified', 64, art.BLACK)
         screen.blit(draw_text, (grid_w + 160, 760))
-        grid.blit(RedArrow, (c, c * (0 - gridClass.grid_scroll)))
-        grid.blit(RedArrow, (c * 10, c * (0 - gridClass.grid_scroll)))
+        grid.blit(RedArrow, (c, c * (0 - grid_scroll)))
+        grid.blit(RedArrow, (c * 10, c * (0 - grid_scroll)))
 
 
 def tutorial():
@@ -1257,19 +1257,19 @@ def tutorial():
             build_up.draw(screen, art.BLACK)
             build_down.draw(screen, art.BLACK)
         if scrolling:
-            gridClass.grid_scroll = scroller.scroll(event.pos[1])
+            grid_scroll = scroller.scroll(event.pos[1])
         for event in pg.event.get():
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
                     return 1
                 if event.key == pg.K_s:
-                    if gridClass.grid_scroll < grid_height - grid_width:
-                        gridClass.grid_scroll += 1
-                        scroller.update_y(gridClass.grid_scroll)
+                    if grid_scroll < grid_height - grid_width:
+                        grid_scroll += 1
+                        scroller.update_y(grid_scroll)
                 if event.key == pg.K_w:
-                    if gridClass.grid_scroll > 0:
-                        gridClass.grid_scroll -= 1
-                        scroller.update_y(gridClass.grid_scroll)
+                    if grid_scroll > 0:
+                        grid_scroll -= 1
+                        scroller.update_y(grid_scroll)
                 if event.key == pg.K_SPACE and tutorial_progress == 3 or tutorial_progress == 16:
                     selected_unit.use_special()
                     tutorial_progress += 1
@@ -1277,14 +1277,14 @@ def tutorial():
             if event.type == pg.MOUSEBUTTONDOWN:
                 if grid_space.get_rect(x=(adj_x), y=(adj_y)).collidepoint(event.pos):
                     if event.button == 4:
-                        if gridClass.grid_scroll > 0:
-                            gridClass.grid_scroll -= 1
-                            scroller.update_y(gridClass.grid_scroll)
+                        if grid_scroll > 0:
+                            grid_scroll -= 1
+                            scroller.update_y(grid_scroll)
                     if event.button == 5:
-                        if gridClass.grid_scroll < grid_height - grid_width:
-                            gridClassgrid_scroll += 1
-                            scroller.update_y(gridClass.grid_scroll)
-                    dest_cell = gridClass.find_grid_coords(event.pos[0], event.pos[1], grid_w)
+                        if grid_scroll < grid_height - grid_width:
+                            grid_scroll += 1
+                            scroller.update_y(grid_scroll)
+                    dest_cell = gridClass.find_grid_coords(event.pos[0], event.pos[1], grid_w, grid_width, grid_scroll, adj_y, adj_x)
                     if tutorial_progress == 0 and event.button == 1 and dest_cell == (5, 5):
                         tutorial_progress += 1
                         selected_cell = (5, 5)
@@ -1383,7 +1383,7 @@ def tutorial():
                                 starting_units()
                             tutorial_progress += 1
                             next_turn()
-                            scroller.update_y(gridClass.grid_scroll)
+                            scroller.update_y(grid_scroll)
                         if tutorial_progress == 8 and next_button.is_over(event.pos):
                             tutorial_progress += 1
                             selected_cell = (5, 30)
@@ -1406,7 +1406,7 @@ def tutorial():
                 w, h = event.w, event.h
             if event.type == pg.QUIT:
                 return 0
-        if tutorial_progress == 21 and gridClass.grid_scroll >= 12:
+        if tutorial_progress == 21 and grid_scroll >= 12:
             doc_one = PowerUp((2, 15), 'Secret Document')
             doc_one.scale_image(c)
             grid[15][2] = doc_one
@@ -1416,7 +1416,7 @@ def tutorial():
             grid[21][9] = doc_two
             item_list.append(doc_two)
             tutorial_progress += 1
-        if tutorial_progress == 23 and gridClass.grid_scroll == 0:
+        if tutorial_progress == 23 and grid_scroll == 0:
             tutorial_progress += 1
         if display_img:
             if selected_unit is None:
@@ -1495,7 +1495,6 @@ def game():
     disp_w, disp_h = 300, 300
     display_window = pg.Surface((disp_w, disp_h))
     c = round(grid_w / grid_width)
-    gridClass = grid_util(grid_width, grid_scroll, adj_x, adj_y, grid_w)
     # buttons/scoller
     scroller = Scroller(art.GREEN, grid_w + 80, grid_h + adj_y, adj_y, 20, 15, max_val=grid_height - grid_width)
     back_button = Button(art.GREY, (w - 120), 20, 100, 50, 'Back', 40, 'rockwell')
@@ -1539,28 +1538,26 @@ def game():
         back_button.update(screen)
         next_button.update(screen)
         turn_button.update(screen)
-        for unit in item_list:
-            if not unit.static:
-                unit.ShowLifeBar(screen)
+        
         
 
         if scrolling:
-            gridClass.grid_scroll = scroller.scroll(event.pos[1])
+            grid_scroll = scroller.scroll(event.pos[1])
         for event in pg.event.get():
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
                     return 1
                 if not game_over:
                     if event.key == pg.K_s:
-                        if gridClass.grid_scroll < grid_height - grid_width:
-                            gridClass.grid_scroll += 1
-                            scroller.update_y(gridClass.grid_scroll)
-                        # print(gridClass.grid_scroll)
+                        if grid_scroll < grid_height - grid_width:
+                            grid_scroll += 1
+                            scroller.update_y(grid_scroll)
+                        # print(grid_scroll)
                     if event.key == pg.K_w:
-                        if gridClass.grid_scroll > 0:
-                            gridClass.grid_scroll -= 1
-                            scroller.update_y(gridClass.grid_scroll)
-                        # print(gridClass.grid_scroll)
+                        if grid_scroll > 0:
+                            grid_scroll -= 1
+                            scroller.update_y(grid_scroll)
+                        # print(grid_scroll)
                     if event.key == pg.K_SPACE:
                         if selected_unit is not None and not selected_unit.static and selected_unit.team == \
                                 turn_map.get(turn) and selected_unit.manual_special:
@@ -1572,7 +1569,7 @@ def game():
                         if selected_unit is not None and not selected_unit.static and selected_unit.team == \
                                 turn_map.get(turn):
                             # dest = destination (cell/unit)
-                            dest_cell = gridClass.find_grid_coords(event.pos[0], event.pos[1], grid_w)
+                            dest_cell = gridClass.find_grid_coords(event.pos[0], event.pos[1], grid_w, grid_width, grid_scroll, adj_y, adj_x)
                             dest_unit = grid[dest_cell[1]][dest_cell[0]]
                             if valid_move(selected_unit, selected_cell, dest_cell, dest_unit):
                                 move_unit(selected_unit, selected_cell, dest_cell, dest_unit)
@@ -1582,20 +1579,20 @@ def game():
                                 attack_unit(selected_unit, selected_cell, dest_cell, dest_unit)
                             # print(dest_cell)
                     elif event.button == 4:
-                        if gridClass.grid_scroll > 0:
-                            gridClass.grid_scroll -= 1
-                            scroller.update_y(gridClass.grid_scroll)
-                        # print(gridClass.grid_scroll)
+                        if grid_scroll > 0:
+                            grid_scroll -= 1
+                            scroller.update_y(grid_scroll)
+                        # print(grid_scroll)
                     elif event.button == 5:
-                        if gridClass.grid_scroll < grid_height - grid_width:
-                            gridClass.grid_scroll += 1
-                            scroller.update_y(gridClass.grid_scroll)
-                        # print(gridClass.gridClass.grid_scroll)
+                        if grid_scroll < grid_height - grid_width:
+                            grid_scroll += 1
+                            scroller.update_y(grid_scroll)
+                        # print(grid_scroll)
                     else:
-                        selected_cell = gridClass.find_grid_coords(event.pos[0], event.pos[1], grid_w)
+                        selected_cell = gridClass.find_grid_coords(event.pos[0], event.pos[1], grid_w, grid_width, grid_scroll, adj_y, adj_x)
                         click_graphic = 0
                         if build_request is not None:
-                            build_cell = gridClass.find_grid_coords(event.pos[0], event.pos[1], grid_w)
+                            build_cell = gridClass.find_grid_coords(event.pos[0], event.pos[1], grid_w, grid_width, grid_scroll, adj_y, adj_x)
                             evaluate_build_space(selected_unit.xy, build_cell, selected_unit, build_request, \
                                                  dimension_lib.get(build_request))
                             build_scroll = 0
@@ -1603,7 +1600,7 @@ def game():
                             selected_unit.build_menu = False
                             build_request = None
                         elif tp_request is not None:
-                            request_dest = gridClass.find_grid_coords(event.pos[0], event.pos[1], grid_w)
+                            request_dest = gridClass.find_grid_coords(event.pos[0], event.pos[1], grid_w, grid_width, grid_scroll, adj_y, adj_x)
                             if grid[request_dest[1]][request_dest[0]] is None:
                                 save_steps = tp_request.steps_remaining
                                 move_unit(tp_request, tp_request.xy, request_dest, None)
@@ -1683,16 +1680,16 @@ def game():
                                         selected_cell = selected_unit.xy
                                         display_img = True
                                         if selected_unit.xy[1] - round(grid_width / 2) <= 0:
-                                            gridClass.grid_scroll = 0
+                                            grid_scroll = 0
                                         elif selected_unit.xy[1] - round(grid_width / 2) <= grid_height - grid_width:
-                                            gridClass.grid_scroll = selected_unit.xy[1] - round(grid_width / 2)
+                                            grid_scroll = selected_unit.xy[1] - round(grid_width / 2)
                                         else:
-                                            gridClass.grid_scroll = grid_height - grid_width
-                                        scroller.update_y(gridClass.grid_scroll)
+                                            grid_scroll = grid_height - grid_width
+                                        scroller.update_y(grid_scroll)
                             if turn_button.is_over(event.pos):
                                 next_turn()
                                 unit_count, active_units, cycle = update_unit_status()
-                                scroller.update_y(gridClass.grid_scroll)
+                                scroller.update_y(grid_scroll)
                             if selected_unit is not None and selected_unit.game_id == 'Engineer' and \
                                     selected_unit.build_menu:
                                 if build_select.is_over(event.pos):
@@ -1801,6 +1798,10 @@ def game():
         if game_over:
             winner = turn_map.get(turn)
             game_over_text(winner)
+        
+        for unit in item_list:
+            if unit.team != None:
+                unit.ShowLifeBar(screen, grid_w, grid_width, grid_height, grid_scroll, adj_y, adj_x)
 
         pg.display.update()
         clock.tick(60)
