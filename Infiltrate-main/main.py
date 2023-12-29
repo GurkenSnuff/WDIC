@@ -939,7 +939,7 @@ def power_spawn():
 
 
 def next_turn():
-    global turn, round_counter, selected_cell, selected_unit, gridClass, scroller
+    global turn, round_counter, selected_cell, selected_unit, gridClass, grid_scroll
     tone = pg.mixer.Sound('art/tone.wav')
     if sound:
         tone.play()
@@ -947,7 +947,10 @@ def next_turn():
     if turn:
         grid_scroll = grid_height - grid_width
     else:
-        for item in item_list:
+        grid_scroll = 0
+
+    for item in item_list:
+        if (not turn and item.team) == "Blue" or (turn and item.team == "Red"):
             item.refresh(screen)
             if item.static and item.team in turn_map.values():
                 if item.queue is not None and item.production():
@@ -963,9 +966,9 @@ def next_turn():
                     item_list.remove(item)
                 elif item.range is not None and item.game_id != 'Teleporter':
                     detect_proximity(item.range, item)
-        grid_scroll = 0
-        round_counter += 1
-        power_spawn()
+        
+    round_counter += 0.5
+    power_spawn()
     selected_cell = None
     selected_unit = None
     
