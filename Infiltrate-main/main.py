@@ -438,6 +438,7 @@ def draw_build_menu_text(grid_w, building, dimensions):
 def find_move_squares():
     # ox, oy = origin_x, origin_y...
     ox, oy = selected_cell
+    
     if oy - selected_unit.steps_remaining < 0:
         start_index = 0
     else:
@@ -446,7 +447,7 @@ def find_move_squares():
         end_index = grid_height
     else:
         end_index = oy + selected_unit.steps_remaining + 1
-    for y, row in enumerate(grid[start_index:end_index], start_index):
+    for y, row in enumerate(grid[0:len(grid)], 0):
         for x, item in enumerate(row):
             if valid_move(selected_unit, selected_unit.xy, (x, y), item):
                 graphic_squares.append((x, y))
@@ -508,9 +509,9 @@ def draw_graphics(grid_space, w):
     # cor = correct: slight grid adjustment
     cor = 2
     visible = []
-    for y, row in enumerate(grid[grid_scroll:grid_scroll + 12]):
+    for y, row in enumerate(grid[0:len(grid)]):
         for x, item in enumerate(row):
-            if item is not None and item not in visible:
+            if item is not None:
                 visible.append(item)
             draw_x, draw_y = c * x, c * y + cor
     for item in visible:
@@ -522,7 +523,7 @@ def draw_graphics(grid_space, w):
             y = item.xy[1] - grid_scroll
         draw_x, draw_y = c * x, c * y + cor
         grid_space.blit(item.image, (draw_x, draw_y))
-    if type(selected_cell) == tuple and grid_scroll + 12 >= selected_cell[1] >= grid_scroll:
+    if type(selected_cell) == tuple:
         if selected_unit is not None and selected_unit.multi_cell:
             x, y = selected_unit.xy[0]
             y -= grid_scroll
@@ -537,11 +538,10 @@ def draw_graphics(grid_space, w):
                 find_move_squares()
                 graphic_squares.append('Search complete')
             for square in graphic_squares[:-1]:
-                if grid_scroll + 12 >= square[1] >= grid_scroll:
-                    x, y = square[0], square[1] - grid_scroll
-                    draw_x, draw_y = c * x, c * y
-                    draw_w, draw_h = c + 1, c + 1
-                    pg.draw.rect(grid_space, art.GREEN, (draw_x, draw_y, draw_w, draw_h), 3)
+                x, y = square[0], square[1] - grid_scroll
+                draw_x, draw_y = c * x, c * y
+                draw_w, draw_h = c + 1, c + 1
+                pg.draw.rect(grid_space, art.GREEN, (draw_x, draw_y, draw_w, draw_h), 3)
         else:
             pg.draw.rect(grid_space, art.RED, (draw_x, draw_y, draw_w, draw_h), 1)
             if click_graphic == 2 and selected_unit.activities[1] == 0:
@@ -677,7 +677,7 @@ def valid_attack(unit, start, dest, dest_unit):
 def attack_unit(unit, start, dest, dest_unit):
     global grid, game_over
     dest_unit.current_hp -= unit.damage
-    #dest_unit.ShowLifeBar(screen)
+    
     if unit.game_id == 'Soldier':
         attack_sound = pg.mixer.Sound('art/rifle.wav')
     elif unit.game_id == 'Spy':
@@ -1531,7 +1531,7 @@ def game():
     while game_state == 3:
         screen.fill(art.DARK_GREY)
         grid_space.fill(art.LIGHT_GREEN)
-        
+
         display_window.fill(art.WHITE)
         art.display_border(display_window, disp_w, disp_h)
         draw_grid_lines(grid_space, grid_w, grid_h)
@@ -1593,6 +1593,7 @@ def game():
                         # print(grid_scroll)
                     else:
                         selected_cell = gridClass.find_grid_coords(event.pos[0], event.pos[1], grid_w, grid_width, grid_scroll, adj_y, adj_x)
+                        
                         click_graphic = 0
                         if build_request is not None:
                             build_cell = gridClass.find_grid_coords(event.pos[0], event.pos[1], grid_w, grid_width, grid_scroll, adj_y, adj_x)
@@ -1679,7 +1680,7 @@ def game():
                                     if selected_unit == test_cycle and len(active_units) > 1:
                                         selected_unit = next(cycle)
                                     if(selected_unit != None):
-
+                                        
                                         selected_cell = selected_unit.xy
                                         display_img = True
                                         if selected_unit.xy[1] - round(grid_width / 2) <= 0:
@@ -1819,6 +1820,7 @@ if __name__ == '__main__':
     pg.display.set_icon(art.WindowLogo)
     screen = pg.display.set_mode((w, h), pg.RESIZABLE)
     while True:
+        
         if game_state == 1:
             game_state = main_menu()
         elif game_state == 2:
