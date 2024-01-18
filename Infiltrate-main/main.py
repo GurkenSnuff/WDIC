@@ -3,6 +3,8 @@ from ui_tools import Button, Scroller
 from game_units import Unit, Building, PowerUp, Terrain
 from grid_util import grid_util
 
+root_directory = __file__.rstrip('main.py')
+print(root_directory)
 # declare globals
 game_state = 1
 sound = True
@@ -71,8 +73,12 @@ def asteroid_effect(ast_list):
             ast_list.remove(asteroid)
 
 
+import pathlib
+ 
+
 def make_click():
-    click = pg.mixer.Sound('art/click.wav')
+
+    click = pg.mixer.Sound(root_directory + 'art/click.wav')
     if sound:
         click.play()
 
